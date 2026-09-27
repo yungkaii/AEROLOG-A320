@@ -1,0 +1,123 @@
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+@theme {
+  --font-sans: 'Barlow', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+:root {
+  --bg-page: #f1f3f7;
+  --bg-card: #ffffff;
+  --bg-muted: #e5e9f0;
+  --bg-input: #ffffff;
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --text-accent: #d97706;
+  --border-subtle: #cbd5e1;
+  --border-strong: #94a3b8;
+  --ring-focus: #d97706;
+  --badge-bg: #fef3c7;
+  --badge-text: #92400e;
+}
+
+[data-theme='dark'],
+.dark {
+  --bg-page: #0a0d14;
+  --bg-card: #111622;
+  --bg-muted: #171e2e;
+  --bg-input: #0c1018;
+  --text-main: #f1f5f9;
+  --text-muted: #8292ab;
+  --text-accent: #f59e0b;
+  --border-subtle: #1e2638;
+  --border-strong: #2c3850;
+  --ring-focus: #f59e0b;
+  --badge-bg: rgba(245, 158, 11, 0.12);
+  --badge-text: #fbbf24;
+}
+
+body {
+  background-color: var(--bg-page);
+  color: var(--text-main);
+  min-height: 100vh;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+}
+
+/* Technical Engineering Blueprint Grid */
+.tech-grid {
+  background-size: 24px 24px;
+  background-image: 
+    linear-gradient(to right, rgba(100, 116, 139, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(100, 116, 139, 0.08) 1px, transparent 1px);
+}
+
+.dark .tech-grid,
+[data-theme='dark'] .tech-grid {
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.05) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.05) 1px, transparent 1px);
+}
+
+/* Micro Hazard Caution Stripe */
+.hazard-strip-amber {
+  background: repeating-linear-gradient(
+    -45deg,
+    #f59e0b,
+    #f59e0b 6px,
+    #0c1018 6px,
+    #0c1018 12px
+  );
+}
+
+/* Cockpit Bezel Frame */
+.cockpit-panel {
+  border: 1px solid var(--border-subtle);
+  box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.03);
+}
+
+/* Technical Scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(100, 116, 139, 0.35);
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 158, 11, 0.6);
+}
+
+/* Safe area padding for mobile navigation bar */
+.safe-area-pb {
+  padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0.5rem));
+}
+
+/* Print Styles for Technical Maintenance Sheet */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #000000 !important;
+    font-size: 11pt !important;
+  }
+  header, footer, nav, .no-print, button, .action-buttons {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .page-break {
+    page-break-before: always;
+  }
+  .shadow-sm, .shadow-md, .shadow-lg, .shadow-xl {
+    box-shadow: none !important;
+  }
+  .border, .border-subtle {
+    border-color: #cbd5e1 !important;
+  }
+}
