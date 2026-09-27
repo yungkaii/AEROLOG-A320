@@ -345,7 +345,7 @@ async function seedDemoData() {
     },
     {
       id: 'demo_tr_005',
-      aircraftType: 'A320neo (PW1100G)',
+      aircraftType: 'A320neo (CFM LEAP-1A)',
       aircraftRegistration: 'PK-XMA',
       aircraftMSN: 'MSN 10450',
       date: '2026-08-29',

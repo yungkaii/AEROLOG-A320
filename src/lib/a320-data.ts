@@ -162,12 +162,6 @@ export const A320_AIRCRAFT_TYPES = [
   'A320-200 (CFM56)',
   'A320-200 (IAE V2500)',
   'A320neo (CFM LEAP-1A)',
-  'A320neo (PW1100G)',
-  'A321-200 (CFM56)',
-  'A321-200 (IAE V2500)',
-  'A321neo (CFM LEAP-1A)',
-  'A321neo (PW1100G)',
-  'A319-100',
 ]
 
 export const DEFAULT_AIRCRAFT_REGISTRATIONS = [
