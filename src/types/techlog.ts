@@ -16,6 +16,7 @@ export interface TroubleshootingRecordWithImages {
   aircraftType: string
   aircraftRegistration: string
   aircraftMSN?: string | null
+  effectivity?: string | null
   date: string
   ATAChapter: string
   ATASection?: string | null
@@ -46,6 +47,7 @@ export const troubleshootingFormSchema = z
       .min(2, 'Registration is required')
       .transform((val) => val.trim().toUpperCase()),
     aircraftMSN: z.string().optional().default(''),
+    effectivity: z.string().optional().default(''),
     date: z.string().min(1, 'Date is required'),
     ATAChapter: z.string().min(1, 'ATA Chapter is required'),
     ATASection: z.string().optional().default(''),

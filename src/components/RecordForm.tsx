@@ -52,6 +52,7 @@ export default function RecordForm({
     initialData?.aircraftRegistration || DEFAULT_AIRCRAFT_REGISTRATIONS[0]
   )
   const [aircraftMSN, setAircraftMSN] = useState(initialData?.aircraftMSN || '')
+  const [effectivity, setEffectivity] = useState(initialData?.effectivity || '')
   const [date, setDate] = useState(
     initialData?.date || new Date().toISOString().split('T')[0]
   )
@@ -95,6 +96,7 @@ export default function RecordForm({
               setAircraftType(parsed.aircraftType || A320_AIRCRAFT_TYPES[0])
               setAircraftRegistration(parsed.aircraftRegistration || DEFAULT_AIRCRAFT_REGISTRATIONS[0])
               setAircraftMSN(parsed.aircraftMSN || '')
+              setEffectivity(parsed.effectivity || '')
               setDate(parsed.date || new Date().toISOString().split('T')[0])
               setATAChapter(parsed.ATAChapter || '32')
               setATASection(parsed.ATASection || '')
@@ -133,6 +135,7 @@ export default function RecordForm({
         aircraftType,
         aircraftRegistration,
         aircraftMSN,
+        effectivity,
         date,
         ATAChapter,
         ATASection,
@@ -163,6 +166,7 @@ export default function RecordForm({
     aircraftType,
     aircraftRegistration,
     aircraftMSN,
+    effectivity,
     date,
     ATAChapter,
     ATASection,
@@ -211,6 +215,7 @@ export default function RecordForm({
       aircraftType,
       aircraftRegistration,
       aircraftMSN,
+      effectivity,
       date,
       ATAChapter,
       ATASection,
@@ -300,7 +305,7 @@ export default function RecordForm({
           <span className="text-[10px] text-slate-400 font-mono uppercase">AIRBUS A320 FLEET</span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* Aircraft Type */}
           <div className="space-y-1.5">
             <label className="text-xs font-mono uppercase text-slate-600 dark:text-slate-300">
@@ -340,6 +345,9 @@ export default function RecordForm({
                   const info = getAircraftEngineInfo(selected)
                   if (info) {
                     setAircraftType(info.aircraftType)
+                    if (info.effectivity) {
+                      setEffectivity(info.effectivity)
+                    }
                   }
                 }
               }}
@@ -377,6 +385,9 @@ export default function RecordForm({
                   const info = getAircraftEngineInfo(val)
                   if (info) {
                     setAircraftType(info.aircraftType)
+                    if (info.effectivity) {
+                      setEffectivity(info.effectivity)
+                    }
                   }
                 }}
                 placeholder="ATAU KETIK REGISTRASI (MISAL: PK-BKF, PK-BKP, PK-SJT)"
@@ -404,6 +415,28 @@ export default function RecordForm({
                 <span className="text-[9px] text-emerald-500/90 font-bold">({getAircraftEngineInfo(aircraftRegistration)?.engineDetail})</span>
               </div>
             )}
+          </div>
+
+          {/* Effectivity (EFF) */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-mono uppercase text-slate-600 dark:text-slate-300">
+                EFFECTIVITY (EFF)
+              </label>
+              <span className="text-[9px] font-mono text-slate-400">AMM / TSM</span>
+            </div>
+            <div className="relative">
+              <input
+                type="text"
+                value={effectivity}
+                onChange={(e) => setEffectivity(e.target.value.toUpperCase())}
+                placeholder="e.g. 051 / 041-049"
+                className="w-full text-xs font-mono uppercase font-bold py-2 px-2.5 rounded-sm border border-slate-300 dark:border-[#20293a] bg-slate-50 dark:bg-[#0c1018] text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
+              />
+            </div>
+            <span className="text-[10px] font-mono text-slate-500 dark:text-slate-400 block pt-0.5">
+              {effectivity ? `AIRBUS EFF: ${effectivity}` : 'Manual effectivity filter code'}
+            </span>
           </div>
 
           {/* MSN (Optional) */}

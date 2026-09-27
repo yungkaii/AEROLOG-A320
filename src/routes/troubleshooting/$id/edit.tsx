@@ -61,6 +61,7 @@ function EditTroubleshootingPage() {
     aircraftType: record.aircraftType,
     aircraftRegistration: record.aircraftRegistration,
     aircraftMSN: record.aircraftMSN || '',
+    effectivity: record.effectivity || '',
     date: record.date,
     ATAChapter: record.ATAChapter,
     ATASection: record.ATASection || '',

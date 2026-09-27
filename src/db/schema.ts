@@ -5,6 +5,7 @@ export const troubleshootingRecords = sqliteTable('troubleshooting_records', {
   aircraftType: text('aircraft_type').notNull(),
   aircraftRegistration: text('aircraft_registration').notNull(),
   aircraftMSN: text('aircraft_msn'),
+  effectivity: text('effectivity'),
   date: text('date').notNull(),
   ATAChapter: text('ata_chapter').notNull(),
   ATASection: text('ata_section'),

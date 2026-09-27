@@ -56,6 +56,7 @@ export async function ensureDatabaseInitialized() {
       aircraft_type TEXT NOT NULL,
       aircraft_registration TEXT NOT NULL,
       aircraft_msn TEXT,
+      effectivity TEXT,
       date TEXT NOT NULL,
       ata_chapter TEXT NOT NULL,
       ata_section TEXT,
@@ -77,6 +78,13 @@ export async function ensureDatabaseInitialized() {
       updated_at TEXT NOT NULL
     );
   `)
+
+  // Automatic migration for effectivity column on existing databases
+  try {
+    await client.execute(`ALTER TABLE troubleshooting_records ADD COLUMN effectivity TEXT;`)
+  } catch {
+    // Column already exists or already added
+  }
 
   await client.execute(`
     CREATE TABLE IF NOT EXISTS troubleshooting_images (

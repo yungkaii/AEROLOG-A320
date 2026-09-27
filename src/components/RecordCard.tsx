@@ -104,6 +104,11 @@ export default function RecordCard({ record, viewMode = 'card' }: RecordCardProp
               <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-slate-100 dark:bg-[#161d2a] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-[#242e40]">
                 {record.aircraftType.split(' ')[0]}
               </span>
+              {record.effectivity && (
+                <span className="text-[10px] font-mono font-bold px-1.5 py-0.2 rounded-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20">
+                  EFF {record.effectivity}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-1.5 text-xs font-mono text-slate-500 dark:text-slate-400">
               <span className="font-semibold text-slate-700 dark:text-slate-300">ATA {record.ATAChapter}</span>

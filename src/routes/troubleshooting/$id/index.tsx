@@ -281,6 +281,12 @@ REF: ${record.referenceDocument || 'N/A'}`
               </p>
             </div>
             <div>
+              <span className="text-slate-400">EFFECTIVITY (EFF):</span>
+              <p className="font-bold text-amber-600 dark:text-amber-400 mt-0.5">
+                {record.effectivity || '—'}
+              </p>
+            </div>
+            <div>
               <span className="text-slate-400">LOGGED BY:</span>
               <p className="text-slate-800 dark:text-slate-200 mt-0.5">
                 {record.technicianName}
