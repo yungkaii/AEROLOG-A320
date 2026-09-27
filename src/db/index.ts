@@ -57,6 +57,8 @@ export async function ensureDatabaseInitialized() {
       aircraft_registration TEXT NOT NULL,
       aircraft_msn TEXT,
       effectivity TEXT,
+      fault_message TEXT,
+      troubleshooting_manual TEXT,
       date TEXT NOT NULL,
       ata_chapter TEXT NOT NULL,
       ata_section TEXT,
@@ -79,9 +81,19 @@ export async function ensureDatabaseInitialized() {
     );
   `)
 
-  // Automatic migration for effectivity column on existing databases
+  // Automatic migration for effectivity, fault_message, and troubleshooting_manual columns on existing databases
   try {
     await client.execute(`ALTER TABLE troubleshooting_records ADD COLUMN effectivity TEXT;`)
+  } catch {
+    // Column already exists or already added
+  }
+  try {
+    await client.execute(`ALTER TABLE troubleshooting_records ADD COLUMN fault_message TEXT;`)
+  } catch {
+    // Column already exists or already added
+  }
+  try {
+    await client.execute(`ALTER TABLE troubleshooting_records ADD COLUMN troubleshooting_manual TEXT;`)
   } catch {
     // Column already exists or already added
   }
@@ -192,6 +204,9 @@ async function seedDemoData() {
       aircraftType: 'A320-200 (CFM56)',
       aircraftRegistration: 'PK-AZA',
       aircraftMSN: 'MSN 5410',
+      effectivity: '041',
+      faultMessage: 'WHEEL N/W STRG FAULT',
+      troubleshootingManual: 'TSM 32-42-00-810-801',
       date: '2026-09-20',
       ATAChapter: '32',
       ATASection: '32-42',
@@ -243,6 +258,9 @@ async function seedDemoData() {
       aircraftType: 'A320neo (CFM LEAP-1A)',
       aircraftRegistration: 'PK-GLA',
       aircraftMSN: 'MSN 9122',
+      effectivity: '151',
+      faultMessage: null,
+      troubleshootingManual: 'TSM 52-31-00-810-801',
       date: '2026-09-24',
       ATAChapter: '52',
       ATASection: '52-31',
@@ -286,6 +304,9 @@ async function seedDemoData() {
       aircraftType: 'A320-200 (IAE V2500)',
       aircraftRegistration: 'PK-SGF',
       aircraftMSN: 'MSN 4890',
+      effectivity: null,
+      faultMessage: 'AIR ENG 1 BLEED FAULT',
+      troubleshootingManual: 'TSM 36-11-00-810-802',
       date: '2026-09-15',
       ATAChapter: '36',
       ATASection: '36-11',
@@ -321,6 +342,9 @@ async function seedDemoData() {
       aircraftType: 'A320-200 (CFM56)',
       aircraftRegistration: 'PK-WIZ',
       aircraftMSN: 'MSN 6205',
+      effectivity: null,
+      faultMessage: 'BRAKES HOT',
+      troubleshootingManual: 'TSM 32-48-00-810-801',
       date: '2026-09-08',
       ATAChapter: '32',
       ATASection: '32-48',
@@ -356,6 +380,9 @@ async function seedDemoData() {
       aircraftType: 'A320neo (CFM LEAP-1A)',
       aircraftRegistration: 'PK-XMA',
       aircraftMSN: 'MSN 10450',
+      effectivity: null,
+      faultMessage: 'NAV ADR 1 FAULT',
+      troubleshootingManual: 'TSM 34-11-00-810-801',
       date: '2026-08-29',
       ATAChapter: '34',
       ATASection: '34-12',

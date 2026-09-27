@@ -62,6 +62,8 @@ function EditTroubleshootingPage() {
     aircraftRegistration: record.aircraftRegistration,
     aircraftMSN: record.aircraftMSN || '',
     effectivity: record.effectivity || '',
+    faultMessage: record.faultMessage || '',
+    troubleshootingManual: record.troubleshootingManual || record.referenceDocument || '',
     date: record.date,
     ATAChapter: record.ATAChapter,
     ATASection: record.ATASection || '',

@@ -114,7 +114,7 @@ function TroubleshootingDetailPage() {
     const summaryText = `[A320 TECHLOG RECORD]
 A/C: ${record.aircraftRegistration} (${record.aircraftType})
 DATE: ${record.date} | ATA ${record.ATAChapter} (${ataTitle})
-DEFECT: ${record.defect}
+${record.faultMessage ? `MSG: ${record.faultMessage}\n` : ''}${record.troubleshootingManual ? `TSM: ${record.troubleshootingManual}\n` : ''}DEFECT: ${record.defect}
 FINDING: ${record.finding || 'N/A'}
 ACTION: ${record.troubleshootingAction || 'N/A'}
 RECTIFICATION: ${record.rectification || 'N/A'}
@@ -233,6 +233,11 @@ REF: ${record.referenceDocument || 'N/A'}`
             <span className="text-xs font-mono uppercase text-slate-600 dark:text-slate-400">
               {ataTitle}
             </span>
+            {record.faultMessage && (
+              <span className="font-mono text-xs font-bold px-2.5 py-1 rounded-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30">
+                MSG: {record.faultMessage}
+              </span>
+            )}
           </div>
 
           <div className="flex items-center gap-2">
@@ -326,6 +331,18 @@ REF: ${record.referenceDocument || 'N/A'}`
                 {record.workOrderNumber || '—'}
               </p>
             </div>
+            <div>
+              <span className="text-slate-400">MESSAGE (ECAM):</span>
+              <p className="font-bold text-amber-600 dark:text-amber-400 mt-0.5">
+                {record.faultMessage || '—'}
+              </p>
+            </div>
+            <div>
+              <span className="text-slate-400">TSM MANUAL:</span>
+              <p className="font-semibold text-slate-800 dark:text-slate-200 mt-0.5">
+                {record.troubleshootingManual || '—'}
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -401,8 +418,20 @@ REF: ${record.referenceDocument || 'N/A'}`
             AMM / TSM
           </span>
         </div>
-        <div className="pt-1 font-mono text-xs font-semibold text-slate-900 dark:text-amber-400 bg-white dark:bg-[#111622] p-2.5 rounded-xs border border-slate-300 dark:border-[#1e2638]">
-          {record.referenceDocument || 'No reference document recorded.'}
+        <div className="pt-1 font-mono text-xs font-semibold text-slate-900 dark:text-amber-400 bg-white dark:bg-[#111622] p-2.5 rounded-xs border border-slate-300 dark:border-[#1e2638] flex flex-wrap gap-x-4 gap-y-1">
+          {record.troubleshootingManual && (
+            <span>
+              <span className="text-slate-400 font-normal">TSM:</span> {record.troubleshootingManual}
+            </span>
+          )}
+          {record.referenceDocument && record.referenceDocument !== record.troubleshootingManual && (
+            <span>
+              <span className="text-slate-400 font-normal">REF:</span> {record.referenceDocument}
+            </span>
+          )}
+          {!record.troubleshootingManual && !record.referenceDocument && (
+            <span className="text-slate-400 font-normal">No reference document recorded.</span>
+          )}
         </div>
       </div>
 

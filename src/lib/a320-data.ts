@@ -169,6 +169,7 @@ export interface FleetAircraftInfo {
   airline: 'Super Air Jet' | 'Batik Air'
   aircraftType: string
   engineDetail: string
+  effectivity?: string
 }
 
 export const SUPER_AIR_JET_REGISTRATIONS = [

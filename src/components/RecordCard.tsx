@@ -121,11 +121,23 @@ export default function RecordCard({ record, viewMode = 'card' }: RecordCardProp
         {/* Center: Defect Summary & Finding */}
         <div className="flex-1 space-y-1">
           <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 line-clamp-1 group-hover:text-amber-500 transition">
+            {record.faultMessage && (
+              <span className="font-mono text-xs font-bold text-amber-500 dark:text-amber-400 mr-1.5">
+                [{record.faultMessage}]
+              </span>
+            )}
             {record.defect}
           </p>
-          <p className="text-xs font-mono text-slate-500 dark:text-slate-400 line-clamp-1">
-            {record.finding ? `FINDING: ${record.finding}` : `ACTION: ${record.troubleshootingAction}`}
-          </p>
+          <div className="flex items-center gap-2 text-xs font-mono text-slate-500 dark:text-slate-400 line-clamp-1">
+            {record.troubleshootingManual && (
+              <span className="text-[10px] px-1.5 py-0.2 rounded-xs bg-slate-100 dark:bg-[#161d2a] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-[#222b3c] font-semibold">
+                TSM: {record.troubleshootingManual}
+              </span>
+            )}
+            <span>
+              {record.finding ? `FINDING: ${record.finding}` : `ACTION: ${record.troubleshootingAction}`}
+            </span>
+          </div>
         </div>
 
         {/* Right Column: Status, Images & Link */}
@@ -228,6 +240,20 @@ export default function RecordCard({ record, viewMode = 'card' }: RecordCardProp
 
       {/* Defect Description */}
       <div className="space-y-2 flex-1">
+        {(record.faultMessage || record.troubleshootingManual) && (
+          <div className="flex items-center gap-1.5 flex-wrap">
+            {record.faultMessage && (
+              <span className="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded-xs bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/30 truncate max-w-full">
+                MSG: {record.faultMessage}
+              </span>
+            )}
+            {record.troubleshootingManual && (
+              <span className="text-[10px] font-mono px-1.5 py-0.5 rounded-xs bg-slate-100 dark:bg-[#161d2a] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-[#20293a] truncate max-w-full">
+                TSM: {record.troubleshootingManual}
+              </span>
+            )}
+          </div>
+        )}
         <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 line-clamp-2 leading-snug group-hover:text-amber-500 transition">
           {record.defect}
         </h4>

@@ -53,6 +53,10 @@ export default function RecordForm({
   )
   const [aircraftMSN, setAircraftMSN] = useState(initialData?.aircraftMSN || '')
   const [effectivity, setEffectivity] = useState(initialData?.effectivity || '')
+  const [faultMessage, setFaultMessage] = useState(initialData?.faultMessage || '')
+  const [troubleshootingManual, setTroubleshootingManual] = useState(
+    initialData?.troubleshootingManual || initialData?.referenceDocument || ''
+  )
   const [date, setDate] = useState(
     initialData?.date || new Date().toISOString().split('T')[0]
   )
@@ -97,6 +101,8 @@ export default function RecordForm({
               setAircraftRegistration(parsed.aircraftRegistration || DEFAULT_AIRCRAFT_REGISTRATIONS[0])
               setAircraftMSN(parsed.aircraftMSN || '')
               setEffectivity(parsed.effectivity || '')
+              setFaultMessage(parsed.faultMessage || '')
+              setTroubleshootingManual(parsed.troubleshootingManual || parsed.referenceDocument || '')
               setDate(parsed.date || new Date().toISOString().split('T')[0])
               setATAChapter(parsed.ATAChapter || '32')
               setATASection(parsed.ATASection || '')
@@ -136,6 +142,8 @@ export default function RecordForm({
         aircraftRegistration,
         aircraftMSN,
         effectivity,
+        faultMessage,
+        troubleshootingManual,
         date,
         ATAChapter,
         ATASection,
@@ -167,6 +175,8 @@ export default function RecordForm({
     aircraftRegistration,
     aircraftMSN,
     effectivity,
+    faultMessage,
+    troubleshootingManual,
     date,
     ATAChapter,
     ATASection,
@@ -216,6 +226,8 @@ export default function RecordForm({
       aircraftRegistration,
       aircraftMSN,
       effectivity,
+      faultMessage,
+      troubleshootingManual,
       date,
       ATAChapter,
       ATASection,
@@ -516,6 +528,37 @@ export default function RecordForm({
           </div>
         </div>
 
+        {/* Row 2: Message (ECAM / CFDS) & Troubleshooting Manual (TSM) */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+          {/* Message */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-mono uppercase text-slate-600 dark:text-slate-300 flex items-center justify-between">
+              <span>MESSAGE <span className="text-slate-400 text-[10px]">(ECAM / CFDS / OPTIONAL)</span></span>
+            </label>
+            <input
+              type="text"
+              value={faultMessage}
+              onChange={(e) => setFaultMessage(e.target.value)}
+              placeholder="e.g. WHEEL N/W STRG FAULT / ENG 1 BLEED FAULT"
+              className="w-full text-xs font-mono py-2 px-2.5 rounded-sm border border-slate-300 dark:border-[#20293a] bg-slate-50 dark:bg-[#0c1018] text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 uppercase"
+            />
+          </div>
+
+          {/* Troubleshooting Manual */}
+          <div className="space-y-1.5">
+            <label className="text-xs font-mono uppercase text-slate-600 dark:text-slate-300 flex items-center justify-between">
+              <span>TROUBLESHOOTING MANUAL <span className="text-slate-400 text-[10px]">(TSM / OPTIONAL)</span></span>
+            </label>
+            <input
+              type="text"
+              value={troubleshootingManual}
+              onChange={(e) => setTroubleshootingManual(e.target.value)}
+              placeholder="e.g. TSM 32-42-00-810-801-A"
+              className="w-full text-xs font-mono py-2 px-2.5 rounded-sm border border-slate-300 dark:border-[#20293a] bg-slate-50 dark:bg-[#0c1018] text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 uppercase"
+            />
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
           {/* Job Card Number */}
           <div className="space-y-1.5">
@@ -740,13 +783,13 @@ export default function RecordForm({
           {/* Reference Document */}
           <div className="space-y-1.5">
             <label className="text-xs font-mono uppercase text-slate-600 dark:text-slate-400">
-              AMM / TSM REFERENCE
+              AMM / OTHER MANUAL REF <span className="text-slate-400 text-[10px]">(OPTIONAL)</span>
             </label>
             <input
               type="text"
               value={referenceDocument}
               onChange={(e) => setReferenceDocument(e.target.value)}
-              placeholder="e.g. TSM 32-42-00-810-801, AMM 32-42-21"
+              placeholder="e.g. AMM 32-42-21-400-001"
               className="w-full text-xs font-mono py-2 px-2.5 rounded-sm border border-slate-300 dark:border-[#20293a] bg-slate-50 dark:bg-[#0c1018] text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
             />
           </div>
