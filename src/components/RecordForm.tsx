@@ -367,11 +367,14 @@ export default function RecordForm({
             >
               <option value="">-- PILIH FLEET REGISTRASI (SUPER AIR JET / BATIK AIR) --</option>
               <optgroup label={`SUPER AIR JET (${SUPER_AIR_JET_REGISTRATIONS.length} A/C • ALL IAE V2500)`}>
-                {SUPER_AIR_JET_REGISTRATIONS.map((reg) => (
-                  <option key={reg} value={reg}>
-                    {reg} • Super Air Jet (IAE V2500)
-                  </option>
-                ))}
+                {SUPER_AIR_JET_REGISTRATIONS.map((reg) => {
+                  const info = A320_FLEET_DATA[reg]
+                  return (
+                    <option key={reg} value={reg}>
+                      {reg} • Super Air Jet ({info?.effectivity ? `EFF ${info.effectivity} • ` : ''}IAE V2500)
+                    </option>
+                  )
+                })}
               </optgroup>
               <optgroup label={`BATIK AIR (${BATIK_AIR_REGISTRATIONS.length} A/C • CFM56 / V2500 / LEAP-1A)`}>
                 {BATIK_AIR_REGISTRATIONS.map((reg) => {

@@ -194,18 +194,41 @@ export const BATIK_AIR_REGISTRATIONS = [
   'PK-LUT', 'PK-LUU', 'PK-LUV', 'PK-LUW', 'PK-LUY', 'PK-LUZ'
 ]
 
+export const SUPER_AIR_JET_EFFECTIVITY: Record<string, string> = {
+  'PK-SAJ': '001',
+  'PK-SAA': '008',
+  'PK-SJU': '014',
+  'PK-SAI': '016',
+  'PK-SJS': '017',
+  'PK-SGD': '019',
+  'PK-SAF': '024',
+  'PK-SAS': '025',
+  'PK-SJR': '026',
+  'PK-SJC': '027',
+  'PK-SJV': '033',
+  'PK-SAY': '035',
+  'PK-SJO': '046',
+  'PK-SJT': '049',
+  'PK-SJQ': '054',
+  'PK-STI': '057',
+}
+
 export const A320_FLEET_DATA: Record<string, FleetAircraftInfo> = {
-  // SUPER AIR JET (All IAE V2527-A5)
+  // SUPER AIR JET (All IAE V2527-A5 with verified Effectivities)
   ...Object.fromEntries(
-    SUPER_AIR_JET_REGISTRATIONS.map((reg) => [
-      reg,
-      {
-        registration: reg,
-        airline: 'Super Air Jet',
-        aircraftType: 'A320-200 (IAE V2500)',
-        engineDetail: 'IAE V2527-A5',
-      },
-    ])
+    SUPER_AIR_JET_REGISTRATIONS.map((reg) => {
+      const eff = SUPER_AIR_JET_EFFECTIVITY[reg]
+      return [
+        reg,
+        {
+          registration: reg,
+          airline: 'Super Air Jet' as const,
+          aircraftType: 'A320-200 (IAE V2500)',
+          engineDetail: eff ? `#${eff} • V2527-A5` : 'V2527-A5',
+          effectivity: eff || undefined,
+        },
+      ]
+    })
   ),
 
   // BATIK AIR - A320neo (CFM LEAP-1A)
