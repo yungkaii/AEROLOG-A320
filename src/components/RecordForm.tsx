@@ -323,6 +323,7 @@ export default function RecordForm({
             <div className="relative">
               <input
                 type="text"
+                list="aircraft-reg-suggestions"
                 value={aircraftRegistration}
                 onChange={(e) => setAircraftRegistration(e.target.value.toUpperCase())}
                 placeholder="PK-LUR"
@@ -332,15 +333,24 @@ export default function RecordForm({
                     : 'border-slate-300 dark:border-[#20293a]'
                 } bg-slate-50 dark:bg-[#0c1018] text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500`}
               />
+              <datalist id="aircraft-reg-suggestions">
+                {DEFAULT_AIRCRAFT_REGISTRATIONS.map((reg) => (
+                  <option key={reg} value={reg} />
+                ))}
+              </datalist>
             </div>
             {/* Quick registration suggestions */}
-            <div className="flex gap-1 flex-wrap pt-0.5">
-              {DEFAULT_AIRCRAFT_REGISTRATIONS.slice(0, 5).map((reg) => (
+            <div className="flex gap-1 flex-wrap pt-0.5 max-h-24 overflow-y-auto pr-0.5">
+              {DEFAULT_AIRCRAFT_REGISTRATIONS.map((reg) => (
                 <button
                   key={reg}
                   type="button"
                   onClick={() => setAircraftRegistration(reg)}
-                  className="text-[10px] font-mono px-1.5 py-0.2 rounded-xs bg-slate-100 dark:bg-[#161d2a] border border-slate-200 dark:border-[#242e40] text-slate-600 dark:text-slate-400 hover:border-amber-500 hover:text-amber-500"
+                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded-xs border transition ${
+                    aircraftRegistration === reg
+                      ? 'bg-amber-500/20 border-amber-500 text-amber-500 font-bold'
+                      : 'bg-slate-100 dark:bg-[#161d2a] border-slate-200 dark:border-[#242e40] text-slate-600 dark:text-slate-400 hover:border-amber-500 hover:text-amber-500'
+                  }`}
                 >
                   {reg}
                 </button>

@@ -166,6 +166,21 @@ export const A320_AIRCRAFT_TYPES = [
 
 export const DEFAULT_AIRCRAFT_REGISTRATIONS = [
   'PK-LUR',
+  'PK-SJT',
+  'PK-SJO',
+  'PK-SJQ',
+  'PK-SAI',
+  'PK-SJS',
+  'PK-SGD',
+  'PK-SAF',
+  'PK-SAS',
+  'PK-SJR',
+  'PK-SJC',
+  'PK-SAY',
+  'PK-STI',
+  'PK-SJU',
+  'PK-SJV',
+  'PK-SAJ',
 ]
 
 export const RESULT_STATUS_OPTIONS = [
