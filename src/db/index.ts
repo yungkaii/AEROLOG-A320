@@ -166,7 +166,7 @@ function createEvidenceSvg(type: 'steering' | 'hydraulic' | 'bleed' | 'brake' | 
     <text x="480" y="265" fill="${theme.stroke}" font-family="monospace" font-size="12">✓ Clearance: 0.045 in</text>
     <text x="480" y="290" fill="${theme.stroke}" font-family="monospace" font-size="12">✓ Torqued to AMM Spec</text>
     <text x="480" y="315" fill="${theme.stroke}" font-family="monospace" font-size="12">✓ BITE Test: Satisfactory</text>
-    <text x="480" y="355" fill="#64748b" font-family="monospace" font-size="11">Tech ID: AME-A320 #41029</text>
+    <text x="480" y="355" fill="#64748b" font-family="monospace" font-size="11">Tech ID: AMEL A320 #15604</text>
     
     <!-- Footer status -->
     <text x="50" y="465" fill="#64748b" font-family="monospace, sans-serif" font-size="12">LOGGED EVIDENCE • AIRBUS A320 MAINTENANCE LOGBOOK</text>
@@ -197,7 +197,7 @@ async function seedDemoData() {
       jobCardNumber: 'JC-CGK-2609-082',
       workOrderNumber: 'WO-884210',
       referenceDocument: 'TSM 32-42-00-810-801, AMM 32-42-21-400-001',
-      technicianName: 'Yuka (AME A320)',
+      technicianName: 'M AZZAHABI (AMEL A320 15604)',
       notes: 'Repeated defect reported 2 weeks ago during heavy rain in Denpasar. Weather sealant around 14GG connector was replaced to prevent future moisture intrusion.',
       isPinned: true,
       tags: JSON.stringify(['#repeated', '#sensor', '#hydraulic', '#electrical', '#bite-test']),
@@ -248,7 +248,7 @@ async function seedDemoData() {
       jobCardNumber: 'JC-SUB-2609-119',
       workOrderNumber: 'WO-885402',
       referenceDocument: 'AMM 52-31-00-200-001, AMM 52-31-15-400-001',
-      technicianName: 'Yuka (AME A320)',
+      technicianName: 'M AZZAHABI (AMEL A320 15604)',
       notes: 'Cargo door operates smoothly. No residual leaks detected after 20 minutes standing under 3000 PSI Yellow system pressure.',
       isPinned: true,
       tags: JSON.stringify(['#hydraulic', '#leak', '#component-change', '#inspection']),
@@ -291,7 +291,7 @@ async function seedDemoData() {
       jobCardNumber: 'JC-DPS-2609-044',
       workOrderNumber: 'WO-883190',
       referenceDocument: 'TSM 36-11-00-810-802, AMM 36-11-21-400-001',
-      technicianName: 'Yuka (AME A320)',
+      technicianName: 'M AZZAHABI (AMEL A320 15604)',
       notes: 'No damage to threads or cone flare. Crew confirmed normal bleed operation on subsequent post-maintenance flight to Jakarta.',
       isPinned: false,
       tags: JSON.stringify(['#pneumatic', '#bite-test', '#engine']),
@@ -326,7 +326,7 @@ async function seedDemoData() {
       jobCardNumber: 'JC-KNO-2609-011',
       workOrderNumber: 'WO-881920',
       referenceDocument: 'TSM 32-48-00-810-801, AMM 32-48-11-400-001',
-      technicianName: 'Yuka (AME A320)',
+      technicianName: 'M AZZAHABI (AMEL A320 15604)',
       notes: 'Brake pads wear pin checked: 8.5 mm remaining (well within 2.0 mm minimum limit).',
       isPinned: false,
       tags: JSON.stringify(['#electrical', '#inspection', '#landing-gear']),
@@ -361,7 +361,7 @@ async function seedDemoData() {
       jobCardNumber: 'JC-CGK-2608-204',
       workOrderNumber: 'WO-879830',
       referenceDocument: 'AMM 34-11-00-720-001, AMM 34-11-15-100-001',
-      technicianName: 'Yuka (AME A320)',
+      technicianName: 'M AZZAHABI (AMEL A320 15604)',
       notes: 'Probe heat operational check satisfactory. Sent alert to line stations to ensure probe covers installed promptly during transit stops.',
       isPinned: true,
       tags: JSON.stringify(['#avionics', '#inspection', '#sensor']),

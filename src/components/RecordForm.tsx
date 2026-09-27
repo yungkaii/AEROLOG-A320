@@ -68,7 +68,7 @@ export default function RecordForm({
     initialData?.referenceDocument || ''
   )
   const [technicianName, setTechnicianName] = useState(
-    initialData?.technicianName || 'Yuka (AME A320)'
+    initialData?.technicianName || 'M AZZAHABI (AMEL A320 15604)'
   )
   const [notes, setNotes] = useState(initialData?.notes || '')
   const [isPinned, setIsPinned] = useState(initialData?.isPinned || false)
@@ -104,7 +104,7 @@ export default function RecordForm({
               setJobCardNumber(parsed.jobCardNumber || '')
               setWorkOrderNumber(parsed.workOrderNumber || '')
               setReferenceDocument(parsed.referenceDocument || '')
-              setTechnicianName(parsed.technicianName || 'Yuka (AME A320)')
+              setTechnicianName(parsed.technicianName || 'M AZZAHABI (AMEL A320 15604)')
               setNotes(parsed.notes || '')
               setIsPinned(Boolean(parsed.isPinned))
               setTags(parsed.tags || [])
@@ -473,7 +473,7 @@ export default function RecordForm({
               type="text"
               value={technicianName}
               onChange={(e) => setTechnicianName(e.target.value)}
-              placeholder="Yuka (AME A320)"
+              placeholder="M AZZAHABI (AMEL A320 15604)"
               className="w-full text-xs font-mono py-2 px-2.5 rounded-sm border border-slate-300 dark:border-[#20293a] bg-slate-50 dark:bg-[#0c1018] text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500"
             />
           </div>
