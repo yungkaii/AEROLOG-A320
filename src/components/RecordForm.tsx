@@ -317,16 +317,53 @@ export default function RecordForm({
 
           {/* Aircraft Registration */}
           <div className="space-y-1.5">
-            <label className="text-xs font-mono uppercase text-slate-600 dark:text-slate-300">
-              REGISTRATION <span className="text-rose-500">*</span>
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-mono uppercase text-slate-600 dark:text-slate-300">
+                REGISTRATION <span className="text-rose-500">*</span>
+              </label>
+              <span className="text-[9px] font-mono text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-xs border border-amber-500/20">
+                SUPERAIRJET FLEET
+              </span>
+            </div>
+
+            {/* Quick Fleet Dropdown Selector */}
+            <select
+              value={DEFAULT_AIRCRAFT_REGISTRATIONS.includes(aircraftRegistration) ? aircraftRegistration : ''}
+              onChange={(e) => {
+                const selected = e.target.value
+                if (selected) {
+                  setAircraftRegistration(selected)
+                  setAircraftType('A320-200 (IAE V2500)')
+                }
+              }}
+              className="w-full text-xs font-mono font-bold py-1.5 px-2 rounded-sm border border-amber-500/40 bg-amber-500/5 dark:bg-[#131b26] text-amber-600 dark:text-amber-400 focus:outline-none focus:border-amber-500 cursor-pointer"
+            >
+              <option value="">-- PILIH SUPERAIRJET ({DEFAULT_AIRCRAFT_REGISTRATIONS.length} A/C) --</option>
+              {DEFAULT_AIRCRAFT_REGISTRATIONS.map((reg) => (
+                <option key={reg} value={reg}>
+                  {reg} • Super Air Jet (IAE V2500)
+                </option>
+              ))}
+            </select>
+
+            {/* Manual input / custom registration */}
             <div className="relative">
               <input
                 type="text"
                 list="aircraft-reg-suggestions"
                 value={aircraftRegistration}
-                onChange={(e) => setAircraftRegistration(e.target.value.toUpperCase())}
-                placeholder="PK-LUR"
+                onChange={(e) => {
+                  const val = e.target.value.toUpperCase()
+                  setAircraftRegistration(val)
+                  if (
+                    DEFAULT_AIRCRAFT_REGISTRATIONS.includes(val) ||
+                    val.startsWith('PK-S') ||
+                    val === 'PK-LUR'
+                  ) {
+                    setAircraftType('A320-200 (IAE V2500)')
+                  }
+                }}
+                placeholder="ATAU KETIK REGISTRASI (MISAL: PK-LUR)"
                 className={`w-full text-xs font-mono uppercase font-bold py-2 px-2.5 rounded-sm border ${
                   errors.aircraftRegistration
                     ? 'border-rose-500'
@@ -339,23 +376,14 @@ export default function RecordForm({
                 ))}
               </datalist>
             </div>
-            {/* Quick registration suggestions */}
-            <div className="flex gap-1 flex-wrap pt-0.5 max-h-24 overflow-y-auto pr-0.5">
-              {DEFAULT_AIRCRAFT_REGISTRATIONS.map((reg) => (
-                <button
-                  key={reg}
-                  type="button"
-                  onClick={() => setAircraftRegistration(reg)}
-                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded-xs border transition ${
-                    aircraftRegistration === reg
-                      ? 'bg-amber-500/20 border-amber-500 text-amber-500 font-bold'
-                      : 'bg-slate-100 dark:bg-[#161d2a] border-slate-200 dark:border-[#242e40] text-slate-600 dark:text-slate-400 hover:border-amber-500 hover:text-amber-500'
-                  }`}
-                >
-                  {reg}
-                </button>
-              ))}
-            </div>
+
+            {/* Auto linked status badge */}
+            {(DEFAULT_AIRCRAFT_REGISTRATIONS.includes(aircraftRegistration) || aircraftRegistration.startsWith('PK-S') || aircraftRegistration === 'PK-LUR') && (
+              <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 pt-0.5">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span>AUTO-LINKED ENGINE: A320-200 (IAE V2500)</span>
+              </div>
+            )}
           </div>
 
           {/* MSN (Optional) */}
