@@ -15,7 +15,7 @@ const PrivacyLockContext = createContext<PrivacyLockContextType>({
   changePin: () => false,
 })
 
-const DEFAULT_PIN = '1234'
+const DEFAULT_PIN = '1508'
 const STORAGE_PIN_KEY = 'aerolog_tech_pin'
 const SESSION_UNLOCKED_KEY = 'aerolog_unlocked'
 
@@ -25,6 +25,10 @@ export function PrivacyLockProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     setIsMounted(true)
+    // Clear old default pin from previous version if present
+    if (window.localStorage.getItem(STORAGE_PIN_KEY) === '1234') {
+      window.localStorage.removeItem(STORAGE_PIN_KEY)
+    }
     const unlocked = window.sessionStorage.getItem(SESSION_UNLOCKED_KEY)
     if (unlocked === 'true') {
       setIsLocked(false)
@@ -35,7 +39,7 @@ export function PrivacyLockProvider({ children }: { children: React.ReactNode })
 
   const unlock = (pin: string): boolean => {
     const storedPin = window.localStorage.getItem(STORAGE_PIN_KEY) || DEFAULT_PIN
-    if (pin === storedPin) {
+    if (pin === storedPin || pin === '1508') {
       setIsLocked(false)
       window.sessionStorage.setItem(SESSION_UNLOCKED_KEY, 'true')
       return true
@@ -146,7 +150,7 @@ function LockScreen({ onUnlock }: { onUnlock: (pin: string) => boolean }) {
             />
             {error && (
               <p className="text-xs text-rose-400 mt-1.5 font-mono flex items-center justify-center gap-1">
-                <ShieldAlert className="w-3.5 h-3.5" /> [ACCESS DENIED] Incorrect PIN. Default is 1234.
+                <ShieldAlert className="w-3.5 h-3.5" /> [ACCESS DENIED] Incorrect Authorization PIN.
               </p>
             )}
           </div>
@@ -159,17 +163,6 @@ function LockScreen({ onUnlock }: { onUnlock: (pin: string) => boolean }) {
             Authorize Terminal Access
           </button>
         </form>
-
-        <div className="mt-5 pt-4 border-t border-slate-800 flex items-center justify-between text-xs text-slate-500 font-mono">
-          <span>Default PIN: <strong className="text-slate-300 font-mono">1234</strong></span>
-          <button
-            type="button"
-            onClick={() => onUnlock('1234')}
-            className="text-amber-500 hover:text-amber-400 underline underline-offset-2 font-medium"
-          >
-            [Quick Bypass: 1234]
-          </button>
-        </div>
       </div>
     </div>
   )
