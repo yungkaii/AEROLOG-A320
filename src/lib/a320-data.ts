@@ -164,69 +164,126 @@ export const A320_AIRCRAFT_TYPES = [
   'A320neo (CFM LEAP-1A)',
 ]
 
+export interface FleetAircraftInfo {
+  registration: string
+  airline: 'Super Air Jet' | 'Batik Air'
+  aircraftType: string
+  engineDetail: string
+}
+
+export const SUPER_AIR_JET_REGISTRATIONS = [
+  'PK-SAA', 'PK-SAC', 'PK-SAE', 'PK-SAF', 'PK-SAG', 'PK-SAH', 'PK-SAI', 'PK-SAJ', 'PK-SAK', 'PK-SAL',
+  'PK-SAM', 'PK-SAO', 'PK-SAP', 'PK-SAQ', 'PK-SAS', 'PK-SAT', 'PK-SAU', 'PK-SAV', 'PK-SAW', 'PK-SAY', 'PK-SAZ',
+  'PK-SGA', 'PK-SGB', 'PK-SGC', 'PK-SGD',
+  'PK-SJA', 'PK-SJC', 'PK-SJD', 'PK-SJE', 'PK-SJF', 'PK-SJG', 'PK-SJH', 'PK-SJI', 'PK-SJJ', 'PK-SJK', 'PK-SJL',
+  'PK-SJM', 'PK-SJO', 'PK-SJP', 'PK-SJQ', 'PK-SJR', 'PK-SJS', 'PK-SJT', 'PK-SJU', 'PK-SJV', 'PK-SJW', 'PK-SJZ',
+  'PK-STA', 'PK-STC', 'PK-STD', 'PK-STF', 'PK-STG', 'PK-STH', 'PK-STI', 'PK-STP', 'PK-STQ', 'PK-STR', 'PK-STT',
+  'PK-STU', 'PK-STS', 'PK-STZ'
+]
+
+export const BATIK_AIR_REGISTRATIONS = [
+  // CFM LEAP-1A (neo)
+  'PK-BDF',
+  // IAE V2500 series
+  'PK-BKF', 'PK-BKG', 'PK-BKJ', 'PK-BKK', 'PK-BKL', 'PK-BKM', 'PK-BKO', 'PK-BLA', 'PK-BLB',
+  // CFM56-5B series (BK*, BL*, LZ*, LA*, LU*)
+  'PK-BKP', 'PK-BKQ', 'PK-BKR', 'PK-BKT', 'PK-BKU', 'PK-BKV', 'PK-BKY', 'PK-BLC', 'PK-BLD', 'PK-LZH',
+  'PK-LAF', 'PK-LAI', 'PK-LAJ', 'PK-LAL', 'PK-LAM', 'PK-LAO', 'PK-LAQ', 'PK-LAT', 'PK-LAW', 'PK-LAY', 'PK-LAZ',
+  'PK-LUF', 'PK-LUG', 'PK-LUH', 'PK-LUI', 'PK-LUJ', 'PK-LUK', 'PK-LUO', 'PK-LUP', 'PK-LUQ', 'PK-LUR', 'PK-LUS',
+  'PK-LUT', 'PK-LUU', 'PK-LUV', 'PK-LUW', 'PK-LUY', 'PK-LUZ'
+]
+
+export const A320_FLEET_DATA: Record<string, FleetAircraftInfo> = {
+  // SUPER AIR JET (All IAE V2527-A5)
+  ...Object.fromEntries(
+    SUPER_AIR_JET_REGISTRATIONS.map((reg) => [
+      reg,
+      {
+        registration: reg,
+        airline: 'Super Air Jet',
+        aircraftType: 'A320-200 (IAE V2500)',
+        engineDetail: 'IAE V2527-A5',
+      },
+    ])
+  ),
+
+  // BATIK AIR - A320neo (CFM LEAP-1A)
+  'PK-BDF': {
+    registration: 'PK-BDF',
+    airline: 'Batik Air',
+    aircraftType: 'A320neo (CFM LEAP-1A)',
+    engineDetail: 'CFM LEAP-1A (neo)',
+  },
+
+  // BATIK AIR - IAE V2500 Series
+  'PK-BKF': { registration: 'PK-BKF', airline: 'Batik Air', aircraftType: 'A320-200 (IAE V2500)', engineDetail: '#051 • V2527-A5' },
+  'PK-BKJ': { registration: 'PK-BKJ', airline: 'Batik Air', aircraftType: 'A320-200 (IAE V2500)', engineDetail: '#052 • V2527-A5' },
+  'PK-BKK': { registration: 'PK-BKK', airline: 'Batik Air', aircraftType: 'A320-200 (IAE V2500)', engineDetail: '#054 • V2527-A5' },
+  'PK-BKL': { registration: 'PK-BKL', airline: 'Batik Air', aircraftType: 'A320-200 (IAE V2500)', engineDetail: '#055 • V2527-A5' },
+  'PK-BKM': { registration: 'PK-BKM', airline: 'Batik Air', aircraftType: 'A320-200 (IAE V2500)', engineDetail: '#056 • V2527-A5' },
+  'PK-BKG': { registration: 'PK-BKG', airline: 'Batik Air', aircraftType: 'A320-200 (IAE V2500)', engineDetail: '#151 • V2527E-A5' },
+  'PK-BKO': { registration: 'PK-BKO', airline: 'Batik Air', aircraftType: 'A320-200 (IAE V2500)', engineDetail: 'V2527-A5' },
+  'PK-BLA': { registration: 'PK-BLA', airline: 'Batik Air', aircraftType: 'A320-200 (IAE V2500)', engineDetail: 'V2527-A5' },
+  'PK-BLB': { registration: 'PK-BLB', airline: 'Batik Air', aircraftType: 'A320-200 (IAE V2500)', engineDetail: 'V2527-A5' },
+
+  // BATIK AIR - CFM56-5B Series
+  'PK-BKQ': { registration: 'PK-BKQ', airline: 'Batik Air', aircraftType: 'A320-200 (CFM56)', engineDetail: '#041 • CFM56-5B4/3' },
+  'PK-BKP': { registration: 'PK-BKP', airline: 'Batik Air', aircraftType: 'A320-200 (CFM56)', engineDetail: '#042 • CFM56-5B4/3' },
+  'PK-BKR': { registration: 'PK-BKR', airline: 'Batik Air', aircraftType: 'A320-200 (CFM56)', engineDetail: '#043 • CFM56-5B4/3' },
+  'PK-BKY': { registration: 'PK-BKY', airline: 'Batik Air', aircraftType: 'A320-200 (CFM56)', engineDetail: '#044 • CFM56-5B4/3' },
+  'PK-BKT': { registration: 'PK-BKT', airline: 'Batik Air', aircraftType: 'A320-200 (CFM56)', engineDetail: '#045 • CFM56-5B4/3' },
+  'PK-BKU': { registration: 'PK-BKU', airline: 'Batik Air', aircraftType: 'A320-200 (CFM56)', engineDetail: '#046 • CFM56-5B4/3' },
+  'PK-BKV': { registration: 'PK-BKV', airline: 'Batik Air', aircraftType: 'A320-200 (CFM56)', engineDetail: '#047 • CFM56-5B4/3' },
+  'PK-BLC': { registration: 'PK-BLC', airline: 'Batik Air', aircraftType: 'A320-200 (CFM56)', engineDetail: '#048 • CFM56-5B4/3' },
+  'PK-BLD': { registration: 'PK-BLD', airline: 'Batik Air', aircraftType: 'A320-200 (CFM56)', engineDetail: '#049 • CFM56-5B4/3' },
+  'PK-LZH': { registration: 'PK-LZH', airline: 'Batik Air', aircraftType: 'A320-200 (CFM56)', engineDetail: 'CFM56-5B4/3' },
+
+  // BATIK AIR - LA* & LU* Series (All CFM56-5B4)
+  ...Object.fromEntries(
+    [
+      'PK-LAF', 'PK-LAI', 'PK-LAJ', 'PK-LAL', 'PK-LAM', 'PK-LAO', 'PK-LAQ', 'PK-LAT', 'PK-LAW', 'PK-LAY', 'PK-LAZ',
+      'PK-LUF', 'PK-LUG', 'PK-LUH', 'PK-LUI', 'PK-LUJ', 'PK-LUK', 'PK-LUO', 'PK-LUP', 'PK-LUQ', 'PK-LUR', 'PK-LUS',
+      'PK-LUT', 'PK-LUU', 'PK-LUV', 'PK-LUW', 'PK-LUY', 'PK-LUZ'
+    ].map((reg) => [
+      reg,
+      {
+        registration: reg,
+        airline: 'Batik Air',
+        aircraftType: 'A320-200 (CFM56)',
+        engineDetail: 'CFM56-5B4/3',
+      },
+    ])
+  ),
+}
+
+export function getAircraftEngineInfo(registration: string): FleetAircraftInfo | null {
+  const clean = registration.trim().toUpperCase()
+  if (A320_FLEET_DATA[clean]) {
+    return A320_FLEET_DATA[clean]
+  }
+  // Pattern fallback heuristics
+  if (clean.startsWith('PK-S')) {
+    return {
+      registration: clean,
+      airline: 'Super Air Jet',
+      aircraftType: 'A320-200 (IAE V2500)',
+      engineDetail: 'IAE V2527-A5',
+    }
+  }
+  if (clean.startsWith('PK-LA') || clean.startsWith('PK-LU') || clean.startsWith('PK-LZ')) {
+    return {
+      registration: clean,
+      airline: 'Batik Air',
+      aircraftType: 'A320-200 (CFM56)',
+      engineDetail: 'CFM56-5B4/3',
+    }
+  }
+  return null
+}
+
 export const DEFAULT_AIRCRAFT_REGISTRATIONS = [
-  'PK-LUR',
-  'PK-SAA',
-  'PK-SAC',
-  'PK-SAE',
-  'PK-SAF',
-  'PK-SAG',
-  'PK-SAH',
-  'PK-SAI',
-  'PK-SAJ',
-  'PK-SAK',
-  'PK-SAL',
-  'PK-SAM',
-  'PK-SAO',
-  'PK-SAP',
-  'PK-SAQ',
-  'PK-SAS',
-  'PK-SAT',
-  'PK-SAU',
-  'PK-SAV',
-  'PK-SAW',
-  'PK-SAY',
-  'PK-SAZ',
-  'PK-SGA',
-  'PK-SGB',
-  'PK-SGC',
-  'PK-SGD',
-  'PK-SJA',
-  'PK-SJC',
-  'PK-SJD',
-  'PK-SJE',
-  'PK-SJF',
-  'PK-SJG',
-  'PK-SJH',
-  'PK-SJI',
-  'PK-SJJ',
-  'PK-SJK',
-  'PK-SJL',
-  'PK-SJM',
-  'PK-SJO',
-  'PK-SJP',
-  'PK-SJQ',
-  'PK-SJR',
-  'PK-SJS',
-  'PK-SJT',
-  'PK-SJU',
-  'PK-SJV',
-  'PK-SJW',
-  'PK-SJZ',
-  'PK-STA',
-  'PK-STC',
-  'PK-STD',
-  'PK-STF',
-  'PK-STG',
-  'PK-STH',
-  'PK-STI',
-  'PK-STP',
-  'PK-STQ',
-  'PK-STR',
-  'PK-STT',
-  'PK-STU',
-  'PK-STS',
-  'PK-STZ',
+  ...SUPER_AIR_JET_REGISTRATIONS,
+  ...BATIK_AIR_REGISTRATIONS.filter((r) => !SUPER_AIR_JET_REGISTRATIONS.includes(r)),
 ]
 
 export const RESULT_STATUS_OPTIONS = [

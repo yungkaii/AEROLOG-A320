@@ -15,6 +15,10 @@ import {
 import {
   A320_AIRCRAFT_TYPES,
   DEFAULT_AIRCRAFT_REGISTRATIONS,
+  SUPER_AIR_JET_REGISTRATIONS,
+  BATIK_AIR_REGISTRATIONS,
+  A320_FLEET_DATA,
+  getAircraftEngineInfo,
   A320_ATA_CHAPTERS,
   RESULT_STATUS_OPTIONS,
   COMMON_TAGS,
@@ -322,7 +326,7 @@ export default function RecordForm({
                 REGISTRATION <span className="text-rose-500">*</span>
               </label>
               <span className="text-[9px] font-mono text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded-xs border border-amber-500/20">
-                SUPERAIRJET FLEET
+                LION GROUP FLEET (109 A/C)
               </span>
             </div>
 
@@ -333,17 +337,32 @@ export default function RecordForm({
                 const selected = e.target.value
                 if (selected) {
                   setAircraftRegistration(selected)
-                  setAircraftType('A320-200 (IAE V2500)')
+                  const info = getAircraftEngineInfo(selected)
+                  if (info) {
+                    setAircraftType(info.aircraftType)
+                  }
                 }
               }}
               className="w-full text-xs font-mono font-bold py-1.5 px-2 rounded-sm border border-amber-500/40 bg-amber-500/5 dark:bg-[#131b26] text-amber-600 dark:text-amber-400 focus:outline-none focus:border-amber-500 cursor-pointer"
             >
-              <option value="">-- PILIH SUPERAIRJET ({DEFAULT_AIRCRAFT_REGISTRATIONS.length} A/C) --</option>
-              {DEFAULT_AIRCRAFT_REGISTRATIONS.map((reg) => (
-                <option key={reg} value={reg}>
-                  {reg} • Super Air Jet (IAE V2500)
-                </option>
-              ))}
+              <option value="">-- PILIH FLEET REGISTRASI (SUPER AIR JET / BATIK AIR) --</option>
+              <optgroup label={`SUPER AIR JET (${SUPER_AIR_JET_REGISTRATIONS.length} A/C • ALL IAE V2500)`}>
+                {SUPER_AIR_JET_REGISTRATIONS.map((reg) => (
+                  <option key={reg} value={reg}>
+                    {reg} • Super Air Jet (IAE V2500)
+                  </option>
+                ))}
+              </optgroup>
+              <optgroup label={`BATIK AIR (${BATIK_AIR_REGISTRATIONS.length} A/C • CFM56 / V2500 / LEAP-1A)`}>
+                {BATIK_AIR_REGISTRATIONS.map((reg) => {
+                  const info = A320_FLEET_DATA[reg]
+                  return (
+                    <option key={reg} value={reg}>
+                      {reg} • Batik Air ({info ? info.engineDetail : 'A320'})
+                    </option>
+                  )
+                })}
+              </optgroup>
             </select>
 
             {/* Manual input / custom registration */}
@@ -355,15 +374,12 @@ export default function RecordForm({
                 onChange={(e) => {
                   const val = e.target.value.toUpperCase()
                   setAircraftRegistration(val)
-                  if (
-                    DEFAULT_AIRCRAFT_REGISTRATIONS.includes(val) ||
-                    val.startsWith('PK-S') ||
-                    val === 'PK-LUR'
-                  ) {
-                    setAircraftType('A320-200 (IAE V2500)')
+                  const info = getAircraftEngineInfo(val)
+                  if (info) {
+                    setAircraftType(info.aircraftType)
                   }
                 }}
-                placeholder="ATAU KETIK REGISTRASI (MISAL: PK-LUR)"
+                placeholder="ATAU KETIK REGISTRASI (MISAL: PK-BKF, PK-BKP, PK-SJT)"
                 className={`w-full text-xs font-mono uppercase font-bold py-2 px-2.5 rounded-sm border ${
                   errors.aircraftRegistration
                     ? 'border-rose-500'
@@ -378,10 +394,14 @@ export default function RecordForm({
             </div>
 
             {/* Auto linked status badge */}
-            {(DEFAULT_AIRCRAFT_REGISTRATIONS.includes(aircraftRegistration) || aircraftRegistration.startsWith('PK-S') || aircraftRegistration === 'PK-LUR') && (
-              <div className="flex items-center gap-1.5 text-[10px] font-mono text-emerald-600 dark:text-emerald-400 pt-0.5">
-                <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span>AUTO-LINKED ENGINE: A320-200 (IAE V2500)</span>
+            {getAircraftEngineInfo(aircraftRegistration) && (
+              <div className="flex items-center justify-between text-[10px] font-mono pt-0.5 px-2 py-1 rounded-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
+                <div className="flex items-center gap-1.5">
+                  <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="font-bold uppercase">{getAircraftEngineInfo(aircraftRegistration)?.airline}:</span>
+                  <span>{getAircraftEngineInfo(aircraftRegistration)?.aircraftType}</span>
+                </div>
+                <span className="text-[9px] text-emerald-500/90 font-bold">({getAircraftEngineInfo(aircraftRegistration)?.engineDetail})</span>
               </div>
             )}
           </div>
