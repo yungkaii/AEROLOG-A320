@@ -325,7 +325,7 @@ export default function RecordForm({
                 type="text"
                 value={aircraftRegistration}
                 onChange={(e) => setAircraftRegistration(e.target.value.toUpperCase())}
-                placeholder="PK-AZA"
+                placeholder="PK-LUR"
                 className={`w-full text-xs font-mono uppercase font-bold py-2 px-2.5 rounded-sm border ${
                   errors.aircraftRegistration
                     ? 'border-rose-500'

@@ -165,14 +165,7 @@ export const A320_AIRCRAFT_TYPES = [
 ]
 
 export const DEFAULT_AIRCRAFT_REGISTRATIONS = [
-  'PK-GLA',
-  'PK-AZA',
-  'PK-SGF',
-  'PK-WIZ',
   'PK-LUR',
-  'PK-XMA',
-  'PK-VNA',
-  'PK-KLA',
 ]
 
 export const RESULT_STATUS_OPTIONS = [
