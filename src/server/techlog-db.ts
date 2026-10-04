@@ -19,6 +19,14 @@ function parseTags(tagsStr: string | null | undefined): string[] {
   }
 }
 
+/**
+ * Escapes SQLite LIKE wildcard characters in a user-supplied string.
+ * Prevents accidental or malicious glob expansion in LIKE queries.
+ */
+function escapeLikeWildcard(value: string): string {
+  return value.replace(/[%_\\]/g, (c) => `\\${c}`)
+}
+
 // 1. Dashboard Stats
 export async function getDashboardStats(): Promise<DashboardStats> {
   await ensureDatabaseInitialized()
@@ -213,7 +221,12 @@ export async function searchTroubleshootingRecords(params: SearchFilterParams): 
   }
 
   if (params.tag && params.tag !== 'ALL') {
-    conditions.push(like(schema.troubleshootingRecords.tags, `%${params.tag}%`))
+    // Escape LIKE wildcards to prevent unintended pattern expansion
+    // Use sql template with ESCAPE clause since Drizzle/LibSQL like() doesn't support escape char arg
+    const safeTag = escapeLikeWildcard(params.tag)
+    conditions.push(
+      sql`${schema.troubleshootingRecords.tags} LIKE ${'%' + safeTag + '%'} ESCAPE '\\'`
+    )
   }
 
   const whereClause = conditions.length > 0 ? and(...conditions) : undefined
@@ -448,7 +461,8 @@ export async function getRecentSearches(): Promise<string[]> {
 
 export async function addRecentSearch(query: string): Promise<void> {
   if (!query || query.trim().length < 2) return
-  const q = query.trim()
+  // Server-side length limit to prevent oversized strings in database
+  const q = query.trim().substring(0, 200)
   const id = `rs_${Date.now()}`
   
   // Remove duplicate if exists

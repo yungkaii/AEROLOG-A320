@@ -1,73 +1,69 @@
-import { createContext, useContext, useState, useEffect } from 'react'
-import { Lock, Unlock, ShieldAlert, KeyRound } from 'lucide-react'
+import { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react'
+import { Lock, Unlock, ShieldAlert, KeyRound, Timer } from 'lucide-react'
+import { checkSessionFn, loginFn, logoutFn } from '../server/auth'
 
 interface PrivacyLockContextType {
   isLocked: boolean
-  unlock: (pin: string) => boolean
-  lock: () => void
-  changePin: (oldPin: string, newPin: string) => boolean
+  lock: () => Promise<void>
 }
 
 const PrivacyLockContext = createContext<PrivacyLockContextType>({
-  isLocked: false,
-  unlock: () => true,
-  lock: () => {},
-  changePin: () => false,
+  isLocked: true,
+  lock: async () => {},
 })
 
-const DEFAULT_PIN = '1508'
-const STORAGE_PIN_KEY = 'aerolog_tech_pin'
-const SESSION_UNLOCKED_KEY = 'aerolog_unlocked'
+// ── Rate limiting constants (client-side UX layer) ────────────────────────────
+// The real rate limiting is enforced server-side in auth.ts.
+// This client-side layer provides immediate feedback.
+const MAX_CLIENT_ATTEMPTS = 5
+const CLIENT_LOCKOUT_MS = 60_000 // 1 minute (server enforces 15 min)
 
 export function PrivacyLockProvider({ children }: { children: React.ReactNode }) {
   const [isLocked, setIsLocked] = useState(true)
-  const [isMounted, setIsMounted] = useState(false)
+  const [isCheckingSession, setIsCheckingSession] = useState(true)
 
+  // Check server-side session on mount
   useEffect(() => {
-    setIsMounted(true)
-    // Clear old default pin from previous version if present
-    if (window.localStorage.getItem(STORAGE_PIN_KEY) === '1234') {
-      window.localStorage.removeItem(STORAGE_PIN_KEY)
-    }
-    const unlocked = window.sessionStorage.getItem(SESSION_UNLOCKED_KEY)
-    if (unlocked === 'true') {
-      setIsLocked(false)
-    } else {
-      setIsLocked(true)
+    let cancelled = false
+    checkSessionFn()
+      .then((result) => {
+        if (!cancelled) {
+          setIsLocked(!result.authenticated)
+          setIsCheckingSession(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setIsLocked(true)
+          setIsCheckingSession(false)
+        }
+      })
+    return () => {
+      cancelled = true
     }
   }, [])
 
-  const unlock = (pin: string): boolean => {
-    const storedPin = window.localStorage.getItem(STORAGE_PIN_KEY) || DEFAULT_PIN
-    if (pin === storedPin || pin === '1508') {
-      setIsLocked(false)
-      window.sessionStorage.setItem(SESSION_UNLOCKED_KEY, 'true')
-      return true
+  const lock = useCallback(async () => {
+    try {
+      await logoutFn()
+    } catch {
+      // Best-effort logout — even if server fails, lock the UI
     }
-    return false
-  }
-
-  const lock = () => {
     setIsLocked(true)
-    window.sessionStorage.removeItem(SESSION_UNLOCKED_KEY)
-  }
+  }, [])
 
-  const changePin = (oldPin: string, newPin: string): boolean => {
-    const storedPin = window.localStorage.getItem(STORAGE_PIN_KEY) || DEFAULT_PIN
-    if (oldPin === storedPin && newPin.length >= 4) {
-      window.localStorage.setItem(STORAGE_PIN_KEY, newPin)
-      return true
-    }
-    return false
-  }
+  const handleUnlockSuccess = useCallback(() => {
+    setIsLocked(false)
+  }, [])
 
-  if (!isMounted) {
-    return <LockScreen onUnlock={unlock} />
+  if (isCheckingSession) {
+    // Show lock screen while checking server session to avoid flash
+    return <LockScreen onUnlockSuccess={handleUnlockSuccess} />
   }
 
   return (
-    <PrivacyLockContext.Provider value={{ isLocked, unlock, lock, changePin }}>
-      {isLocked ? <LockScreen onUnlock={unlock} /> : children}
+    <PrivacyLockContext.Provider value={{ isLocked, lock }}>
+      {isLocked ? <LockScreen onUnlockSuccess={handleUnlockSuccess} /> : children}
     </PrivacyLockContext.Provider>
   )
 }
@@ -76,17 +72,80 @@ export function usePrivacyLock() {
   return useContext(PrivacyLockContext)
 }
 
-function LockScreen({ onUnlock }: { onUnlock: (pin: string) => boolean }) {
-  const [pin, setPin] = useState('')
-  const [error, setError] = useState(false)
+// ── Lock Screen Component ─────────────────────────────────────────────────────
 
-  const handleSubmit = (e: React.FormEvent) => {
+interface LockScreenProps {
+  onUnlockSuccess: () => void
+}
+
+function LockScreen({ onUnlockSuccess }: LockScreenProps) {
+  const [pin, setPin] = useState('')
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Client-side attempt tracking (supplements server-side rate limiting)
+  const attemptsRef = useRef(0)
+  const lockoutUntilRef = useRef<number | null>(null)
+  const [lockoutSeconds, setLockoutSeconds] = useState(0)
+
+  // Lockout countdown timer
+  useEffect(() => {
+    if (lockoutSeconds <= 0) return
+    const timer = setInterval(() => {
+      setLockoutSeconds((s) => {
+        if (s <= 1) {
+          clearInterval(timer)
+          lockoutUntilRef.current = null
+          return 0
+        }
+        return s - 1
+      })
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [lockoutSeconds])
+
+  const isLockedOut = lockoutSeconds > 0
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (onUnlock(pin)) {
-      setError(false)
-    } else {
-      setError(true)
+    if (isSubmitting || isLockedOut || !pin) return
+
+    // Check client-side lockout
+    if (lockoutUntilRef.current && Date.now() < lockoutUntilRef.current) {
+      return
+    }
+
+    setIsSubmitting(true)
+    setErrorMessage(null)
+
+    try {
+      await loginFn({ data: pin })
+      // Server verified PIN and set HttpOnly session cookie
+      attemptsRef.current = 0
+      lockoutUntilRef.current = null
       setPin('')
+      onUnlockSuccess()
+    } catch (err: unknown) {
+      setPin('')
+      attemptsRef.current += 1
+
+      const serverMessage =
+        err instanceof Error ? err.message : 'Authentication failed. Please try again.'
+
+      // Client-side lockout after MAX_CLIENT_ATTEMPTS
+      if (attemptsRef.current >= MAX_CLIENT_ATTEMPTS) {
+        lockoutUntilRef.current = Date.now() + CLIENT_LOCKOUT_MS
+        const secs = Math.ceil(CLIENT_LOCKOUT_MS / 1000)
+        setLockoutSeconds(secs)
+        setErrorMessage(
+          `Too many incorrect attempts. Terminal locked for ${Math.ceil(CLIENT_LOCKOUT_MS / 60000)} minute(s).`
+        )
+      } else {
+        // Show server message (e.g. "Too many attempts" from server-side limiter)
+        setErrorMessage(serverMessage.startsWith('Incorrect') ? '[ACCESS DENIED] Incorrect Authorization PIN.' : serverMessage)
+      }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -112,7 +171,7 @@ function LockScreen({ onUnlock }: { onUnlock: (pin: string) => boolean }) {
             </span>
           </h1>
           <p className="text-xs text-slate-400 mt-1 font-mono">
-            Personal Aircraft Maintenance & Troubleshooting Log
+            Personal Aircraft Maintenance &amp; Troubleshooting Log
           </p>
         </div>
 
@@ -122,7 +181,8 @@ function LockScreen({ onUnlock }: { onUnlock: (pin: string) => boolean }) {
             <span>Technician Access Terminal</span>
           </div>
           <p className="text-slate-400 leading-relaxed text-xs">
-            Aircraft maintenance records, defect telemetry, and photographic evidence are encrypted in your local browser sandbox.
+            Aircraft maintenance records, defect telemetry, and photographic evidence are secured
+            with server-side authentication.
           </p>
         </div>
 
@@ -134,33 +194,43 @@ function LockScreen({ onUnlock }: { onUnlock: (pin: string) => boolean }) {
             <input
               type="password"
               inputMode="numeric"
-              maxLength={8}
+              maxLength={32}
               autoFocus
               value={pin}
+              disabled={isLockedOut || isSubmitting}
               onChange={(e) => {
                 setPin(e.target.value)
-                if (error) setError(false)
+                if (errorMessage && !isLockedOut) setErrorMessage(null)
               }}
               placeholder="••••"
               className={`w-full text-center tracking-[0.5em] text-2xl font-mono py-2.5 px-4 rounded-sm bg-[#0a0d14] border ${
-                error
+                errorMessage
                   ? 'border-rose-500 ring-1 ring-rose-500/30'
                   : 'border-slate-700 focus:border-amber-500 focus:ring-1 focus:ring-amber-500/30'
-              } text-white placeholder-slate-600 outline-none transition`}
+              } text-white placeholder-slate-600 outline-none transition disabled:opacity-50 disabled:cursor-not-allowed`}
             />
-            {error && (
+
+            {/* Error / lockout messages */}
+            {isLockedOut && (
               <p className="text-xs text-rose-400 mt-1.5 font-mono flex items-center justify-center gap-1">
-                <ShieldAlert className="w-3.5 h-3.5" /> [ACCESS DENIED] Incorrect Authorization PIN.
+                <Timer className="w-3.5 h-3.5" />
+                Terminal locked — retry in {lockoutSeconds}s
+              </p>
+            )}
+            {!isLockedOut && errorMessage && (
+              <p className="text-xs text-rose-400 mt-1.5 font-mono flex items-center justify-center gap-1">
+                <ShieldAlert className="w-3.5 h-3.5" /> {errorMessage}
               </p>
             )}
           </div>
 
           <button
             type="submit"
-            className="w-full py-2.5 px-4 rounded-sm bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition shadow-sm flex items-center justify-center gap-2"
+            disabled={isLockedOut || isSubmitting || !pin}
+            className="w-full py-2.5 px-4 rounded-sm bg-amber-500 hover:bg-amber-400 active:bg-amber-600 text-slate-950 font-mono font-bold text-xs uppercase tracking-wider transition shadow-sm flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Unlock className="w-4 h-4" />
-            Authorize Terminal Access
+            {isSubmitting ? 'Verifying...' : 'Authorize Terminal Access'}
           </button>
         </form>
       </div>

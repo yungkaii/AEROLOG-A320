@@ -112,7 +112,7 @@ export default function MobileNav() {
         {/* Lock Screen */}
         <button
           type="button"
-          onClick={lock}
+          onClick={() => void lock()}
           title="Lock session"
           className="flex flex-col items-center justify-center flex-1 py-1 rounded-sm text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200 transition duration-150"
         >

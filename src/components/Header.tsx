@@ -98,7 +98,7 @@ export default function Header() {
 
           {/* Lock Button (Desktop) */}
           <button
-            onClick={lock}
+            onClick={() => void lock()}
             title="Lock maintenance logbook session"
             className="hidden sm:flex p-1.5 text-slate-500 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200 rounded-sm hover:bg-slate-100 dark:hover:bg-[#151c2a] border border-transparent hover:border-slate-300 dark:hover:border-slate-700 transition"
           >
