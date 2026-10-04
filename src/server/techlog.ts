@@ -6,30 +6,40 @@ import type { SearchFilterParams } from '../types/techlog'
 // ── Zod schemas for server-side validation ───────────────────────────────────
 
 /**
+ * Normalizes empty strings or null to undefined and validates date format if present.
+ */
+const optionalDateSchema = z.preprocess(
+  (val) => (val === '' || val === null ? undefined : val),
+  z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format').optional()
+)
+
+const optionalMonthYearSchema = z.preprocess(
+  (val) => (val === '' || val === null ? undefined : val),
+  z.string().regex(/^\d{4}-\d{2}$/, 'Invalid month-year format').optional()
+)
+
+/**
  * Validates search/filter parameters from client.
  * All fields are optional and bounded to prevent abuse.
  */
 const searchParamsSchema = z.object({
-  query: z.string().max(500).optional(),
-  aircraftRegistration: z.string().max(20).optional(),
-  ATAChapter: z.string().max(10).optional(),
-  startDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format')
-    .optional(),
-  endDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format')
-    .optional(),
-  monthYear: z
-    .string()
-    .regex(/^\d{4}-\d{2}$/, 'Invalid month-year format')
-    .optional(),
-  result: z.string().max(100).optional(),
-  tag: z.string().max(50).optional(),
-  pinnedOnly: z.boolean().optional(),
-  limit: z.number().int().min(1).max(200).optional(),
-  offset: z.number().int().min(0).optional(),
+  query: z.string().max(500).optional().default(''),
+  aircraftRegistration: z.string().max(20).optional().default('ALL'),
+  ATAChapter: z.string().max(10).optional().default('ALL'),
+  startDate: optionalDateSchema,
+  endDate: optionalDateSchema,
+  monthYear: optionalMonthYearSchema,
+  result: z.string().max(100).optional().default('ALL'),
+  tag: z.string().max(50).optional().default('ALL'),
+  pinnedOnly: z
+    .preprocess((v) => (v === 'true' ? true : v === 'false' ? false : v), z.boolean().optional())
+    .default(false),
+  limit: z
+    .preprocess((v) => (typeof v === 'string' && v ? Number(v) : v), z.number().int().min(1).max(200).optional())
+    .default(15),
+  offset: z
+    .preprocess((v) => (typeof v === 'string' && v ? Number(v) : v), z.number().int().min(0).optional())
+    .default(0),
 })
 
 /**
