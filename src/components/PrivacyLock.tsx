@@ -67,7 +67,10 @@ export function PrivacyLockProvider({ children }: { children: React.ReactNode })
   return (
     <PrivacyLockContext.Provider value={{ isLocked, lock }}>
       {isLocked && <LockScreen onUnlockSuccess={handleUnlockSuccess} />}
-      <div className={isLocked ? 'hidden' : undefined} aria-hidden={isLocked}>
+      <div
+        className={`min-h-screen flex flex-col flex-1 w-full ${isLocked ? 'hidden' : ''}`}
+        aria-hidden={isLocked}
+      >
         {children}
       </div>
     </PrivacyLockContext.Provider>

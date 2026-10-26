@@ -1,7 +1,7 @@
 
 export default function LoadingState({ message = 'Accessing maintenance archive...' }: { message?: string }) {
   return (
-    <div className="w-full py-12 flex flex-col items-center justify-center space-y-3">
+    <div className="w-full flex-1 min-h-[45vh] py-16 flex flex-col items-center justify-center space-y-3">
       <div className="relative w-10 h-10">
         <div className="absolute inset-0 rounded-full border border-amber-500/20 animate-ping" />
         <div className="w-10 h-10 rounded-full border-2 border-t-amber-500 border-r-transparent border-b-slate-700 border-l-transparent animate-spin" />

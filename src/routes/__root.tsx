@@ -66,7 +66,7 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <ToastProvider>
             <PrivacyLockProvider>
               <Header />
-              <main className="flex-1 w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 md:pb-8">
+              <main className="flex-1 flex flex-col w-full max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-6 pb-24 md:pb-8">
                 {children}
               </main>
               <Footer />
