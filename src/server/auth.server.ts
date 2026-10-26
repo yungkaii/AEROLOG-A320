@@ -59,20 +59,15 @@ if (typeof setInterval !== 'undefined') {
 
 // ── Crypto helpers ───────────────────────────────────────────────────────────
 
-function generateSessionToken(): string {
-  // Use standard Web Crypto API available natively in Node 18+, Vercel, and modern runtimes
-  if (typeof globalThis !== 'undefined' && globalThis.crypto?.getRandomValues) {
-    const bytes = new Uint8Array(32)
-    globalThis.crypto.getRandomValues(bytes)
-    return Array.from(bytes, (b) => b.toString(16).padStart(2, '0')).join('')
-  }
-  // Safe pseudo-random fallback if Web Crypto is unavailable
-  const chars = '0123456789abcdef'
-  let token = ''
-  for (let i = 0; i < 64; i++) {
-    token += chars[Math.floor(Math.random() * 16)]
-  }
-  return token
+import crypto from 'node:crypto'
+
+function getSessionSecret(): string {
+  return process.env.SESSION_SECRET || getServerPin() || 'aerolog-a320-stateless-key-2026'
+}
+
+function signSessionPayload(payload: string): string {
+  const secret = getSessionSecret()
+  return crypto.createHmac('sha256', secret).update(payload).digest('hex')
 }
 
 function timingSafeEqual(a: string, b: string): boolean {
@@ -121,13 +116,13 @@ function parseCookies(cookieHeader: string | null): Record<string, string> {
 
 export function buildSetCookieHeader(token: string | null, maxAgeSeconds: number): string {
   if (token === null) {
-    return `aerolog_session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0`
+    return `aerolog_session=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0`
   }
   const parts = [
     `aerolog_session=${token}`,
     'Path=/',
     'HttpOnly',
-    'SameSite=Strict',
+    'SameSite=Lax',
     `Max-Age=${maxAgeSeconds}`,
   ]
   if (process.env.NODE_ENV === 'production') {
@@ -142,7 +137,7 @@ export function setSessionCookie(token: string): void {
     setCookie('aerolog_session', token, {
       path: '/',
       httpOnly: true,
-      sameSite: 'strict',
+      sameSite: 'lax',
       maxAge,
       secure: process.env.NODE_ENV === 'production',
     })
@@ -164,18 +159,43 @@ export function clearSessionCookie(): void {
 // ── Session management ───────────────────────────────────────────────────────
 
 export function createSession(): string {
-  const token = generateSessionToken()
   const now = Date.now()
+  const expiresAt = now + SESSION_TTL_MS
+  const payload = `aerolog-v1.${now}.${expiresAt}`
+  const signature = signSessionPayload(payload)
+  const token = `${payload}.${signature}`
+
+  // Also track in in-memory sessionStore as fallback
   sessionStore.set(token, {
     token,
     createdAt: now,
-    expiresAt: now + SESSION_TTL_MS,
+    expiresAt,
   })
+
   return token
 }
 
 export function validateSession(token: string | undefined): boolean {
   if (!token) return false
+
+  // 1. Verify stateless HMAC signed token (survives serverless container recycles)
+  if (token.startsWith('aerolog-v1.')) {
+    const parts = token.split('.')
+    if (parts.length === 4) {
+      const [prefix, createdAtStr, expiresAtStr, signature] = parts
+      const expiresAt = Number(expiresAtStr)
+      if (isNaN(expiresAt) || Date.now() > expiresAt) {
+        return false
+      }
+      const payload = `${prefix}.${createdAtStr}.${expiresAtStr}`
+      const expectedSignature = signSessionPayload(payload)
+      if (timingSafeEqual(signature, expectedSignature)) {
+        return true
+      }
+    }
+  }
+
+  // 2. Fallback to in-memory store
   const entry = sessionStore.get(token)
   if (!entry) return false
   if (Date.now() > entry.expiresAt) {

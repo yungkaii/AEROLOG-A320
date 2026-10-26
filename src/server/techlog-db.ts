@@ -398,21 +398,61 @@ export async function updateTroubleshootingRecord(
     })
     .where(eq(schema.troubleshootingRecords.id, id))
 
-  // Sync images: delete existing and reinsert updated image list
-  await db.delete(schema.troubleshootingImages).where(eq(schema.troubleshootingImages.recordId, id))
+  // Safe Image Sync:
+  // 1. Get existing image IDs for this record
+  const existingImages = await db
+    .select({ id: schema.troubleshootingImages.id })
+    .from(schema.troubleshootingImages)
+    .where(eq(schema.troubleshootingImages.recordId, id))
 
+  const existingIdSet = new Set(existingImages.map((img) => img.id))
+  const incomingIdSet = new Set((data.images || []).map((img) => img.id))
+
+  // 2. Only delete images that were explicitly removed by the user in the form
+  const idsToDelete = existingImages
+    .map((img) => img.id)
+    .filter((existingId) => !incomingIdSet.has(existingId))
+
+  if (idsToDelete.length > 0) {
+    await db
+      .delete(schema.troubleshootingImages)
+      .where(
+        and(
+          eq(schema.troubleshootingImages.recordId, id),
+          sql`${schema.troubleshootingImages.id} IN (${sql.join(
+            idsToDelete.map((delId) => sql`${delId}`),
+            sql`, `
+          )})`
+        )
+      )
+  }
+
+  // 3. For incoming images: update caption if existing, insert if new
   if (data.images && data.images.length > 0) {
     for (const img of data.images) {
-      await db.insert(schema.troubleshootingImages).values({
-        id: img.id || `img_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
-        recordId: id,
-        caption: img.caption || 'Evidence Photo',
-        url: img.url,
-        fileName: img.fileName || null,
-        fileSize: img.fileSize || null,
-        mimeType: img.mimeType || 'image/jpeg',
-        createdAt: ('createdAt' in img && typeof (img as { createdAt?: string }).createdAt === 'string' ? (img as { createdAt?: string }).createdAt : now) || now,
-      })
+      const imgId = img.id || `img_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`
+      if (existingIdSet.has(imgId)) {
+        // Existing image: update caption without touching the large base64 url
+        await db
+          .update(schema.troubleshootingImages)
+          .set({ caption: img.caption || 'Evidence Photo' })
+          .where(eq(schema.troubleshootingImages.id, imgId))
+      } else {
+        // New image: insert
+        await db.insert(schema.troubleshootingImages).values({
+          id: imgId,
+          recordId: id,
+          caption: img.caption || 'Evidence Photo',
+          url: img.url,
+          fileName: img.fileName || null,
+          fileSize: img.fileSize || null,
+          mimeType: img.mimeType || 'image/jpeg',
+          createdAt:
+            ('createdAt' in img && typeof (img as { createdAt?: string }).createdAt === 'string'
+              ? (img as { createdAt?: string }).createdAt
+              : now) || now,
+        })
+      }
     }
   }
 

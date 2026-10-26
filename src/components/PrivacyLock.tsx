@@ -57,13 +57,19 @@ export function PrivacyLockProvider({ children }: { children: React.ReactNode })
   }, [])
 
   if (isCheckingSession) {
-    // Show lock screen while checking server session to avoid flash
-    return <LockScreen onUnlockSuccess={handleUnlockSuccess} />
+    return (
+      <div className="min-h-screen bg-[#0a0d14] flex items-center justify-center font-mono text-xs text-amber-500">
+        // VERIFYING AUTHORIZATION TELEMETRY...
+      </div>
+    )
   }
 
   return (
     <PrivacyLockContext.Provider value={{ isLocked, lock }}>
-      {isLocked ? <LockScreen onUnlockSuccess={handleUnlockSuccess} /> : children}
+      {isLocked && <LockScreen onUnlockSuccess={handleUnlockSuccess} />}
+      <div className={isLocked ? 'hidden' : undefined} aria-hidden={isLocked}>
+        {children}
+      </div>
     </PrivacyLockContext.Provider>
   )
 }

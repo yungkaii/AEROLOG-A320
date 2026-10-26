@@ -37,6 +37,26 @@ interface RecordFormProps {
 
 const DRAFT_STORAGE_KEY = 'aerolog_troubleshooting_draft'
 
+function getResultStatusCategory(res: string): 'closed' | 'deferred' | 'open' {
+  if (
+    res.includes('Rectified') ||
+    res.includes('Replaced') ||
+    res.includes('Repaired') ||
+    res.includes('Within Limits')
+  ) {
+    return 'closed'
+  }
+  if (
+    res.includes('Deferred') ||
+    res.includes('MEL') ||
+    res.includes('Monitored') ||
+    res.includes('Temporary')
+  ) {
+    return 'deferred'
+  }
+  return 'open'
+}
+
 export default function RecordForm({
   initialData,
   isEditMode = false,
@@ -262,13 +282,15 @@ export default function RecordForm({
       return
     }
 
-    // Submit validated data
-    onSubmit(validationResult.data)
-
-    // Clear draft on successful submit
-    if (!isEditMode) {
-      window.localStorage.removeItem(DRAFT_STORAGE_KEY)
+    // Check total images payload size to prevent HTTP 413
+    const totalImageChars = images.reduce((acc, img) => acc + (img.url?.length || 0), 0)
+    if (totalImageChars > 3_800_000) {
+      showError('Total size of attached photos is too large. Please remove or compress photos before submitting.')
+      return
     }
+
+    // Submit validated data (Draft will be cleared only on successful database confirmation)
+    onSubmit(validationResult.data)
   }
 
   const currentAta = A320_ATA_CHAPTERS.find((a) => a.chapter === ATAChapter)
@@ -709,29 +731,34 @@ export default function RecordForm({
             <label className="text-xs font-mono uppercase text-slate-600 dark:text-slate-300">
               WORK RESULT STATUS <span className="text-rose-500">*</span>
             </label>
-            <span
-              className={`text-[10px] font-mono px-2 py-0.5 rounded-xs font-bold uppercase border ${
-                result === 'Rectified'
-                  ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/40'
-                  : result === 'Deferred / MEL'
-                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/40'
-                  : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/40'
-              }`}
-            >
-              {result === 'Rectified'
-                ? '● SYSTEM OK / CLOSED'
-                : result === 'Deferred / MEL'
-                ? '▲ MEL CAUTION APPLIED'
-                : '■ FAULT OPEN / IN WORK'}
-            </span>
+            {(() => {
+              const category = getResultStatusCategory(result)
+              return (
+                <span
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded-xs font-bold uppercase border ${
+                    category === 'closed'
+                      ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/40'
+                      : category === 'deferred'
+                      ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/40'
+                      : 'bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/40'
+                  }`}
+                >
+                  {category === 'closed'
+                    ? '● SYSTEM OK / CLOSED'
+                    : category === 'deferred'
+                    ? '▲ MEL / MONITORING APPLIED'
+                    : '■ FAULT OPEN / IN WORK'}
+                </span>
+              )
+            })()}
           </div>
           <select
             value={result}
             onChange={(e) => setResult(e.target.value)}
             className={`w-full text-xs font-mono py-2 px-2.5 rounded-sm border ${
-              result === 'Rectified'
+              getResultStatusCategory(result) === 'closed'
                 ? 'border-emerald-500/60'
-                : result === 'Deferred / MEL'
+                : getResultStatusCategory(result) === 'deferred'
                 ? 'border-amber-500/60'
                 : 'border-rose-500/60'
             } bg-slate-50 dark:bg-[#0c1018] text-slate-900 dark:text-slate-100 focus:outline-none focus:border-amber-500 font-bold`}

@@ -17,15 +17,30 @@ function NewTroubleshootingPage() {
   const handleSubmit = (data: TroubleshootingFormData) => {
     createMutation.mutate(data, {
       onSuccess: (newRecord) => {
+        try {
+          window.localStorage.removeItem('aerolog_troubleshooting_draft')
+        } catch {}
         success('Troubleshooting record saved successfully.')
         navigate({
           to: '/troubleshooting/$id',
           params: { id: newRecord.id },
         })
       },
-      onError: (err) => {
-        console.error(err)
-        error('Failed to save record to database. Please check your data.')
+      onError: (err: any) => {
+        console.error('Save record error:', err)
+        let msg = 'Failed to save record to database.'
+        if (err?.message) {
+          msg = err.message
+        } else if (typeof err === 'string') {
+          msg = err
+        }
+        if (msg.includes('Unauthorized') || msg.includes('session')) {
+          error('Session expired or unauthorized. Please re-enter your PIN to unlock and try saving again.')
+        } else if (msg.includes('payload') || msg.includes('413') || msg.includes('Payload') || msg.includes('limit')) {
+          error('Attached photos total size is too large for the server. Please attach fewer or smaller photos.')
+        } else {
+          error(`Database save issue: ${msg}`)
+        }
       },
     })
   }

@@ -47,6 +47,7 @@ const searchParamsSchema = z.object({
  * Additional server-side constraints are applied here.
  */
 const serverFormSchema = troubleshootingFormSchema.superRefine((data, ctx) => {
+  let totalImagesLength = 0
   // Validate each image
   for (let i = 0; i < data.images.length; i++) {
     const img = data.images[i]
@@ -56,27 +57,39 @@ const serverFormSchema = troubleshootingFormSchema.superRefine((data, ctx) => {
     if (!isDataUri && !isHttpsUrl) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `Image ${i}: URL must be a data URI (data:image/...) or HTTPS URL`,
+        message: `Image ${i + 1}: URL must be a data URI (data:image/...) or HTTPS URL`,
         path: ['images', i, 'url'],
       })
     }
-    // Limit data URI size: ~5MB base64 string
-    if (isDataUri && img.url.length > 7_000_000) {
+    // Limit individual data URI size: ~2.5MB base64 string
+    if (isDataUri && img.url.length > 3_500_000) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `Image ${i}: file size exceeds maximum allowed limit`,
+        message: `Image ${i + 1}: file size exceeds maximum limit (~2.5MB). Please compress the image.`,
         path: ['images', i, 'url'],
       })
     }
+    totalImagesLength += img.url.length
+
     // Caption must be reasonable length
-    if (img.caption.length > 200) {
+    if (img.caption && img.caption.length > 200) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: `Image ${i}: caption exceeds 200 characters`,
+        message: `Image ${i + 1}: caption exceeds 200 characters`,
         path: ['images', i, 'caption'],
       })
     }
   }
+
+  // Ensure total payload fits safely within Vercel's 4.5MB serverless limit
+  if (totalImagesLength > 4_000_000) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Total size of attached photos exceeds the 4MB serverless payload limit. Please attach fewer or smaller photos.',
+      path: ['images'],
+    })
+  }
+
   // Limit total images
   if (data.images.length > 20) {
     ctx.addIssue({

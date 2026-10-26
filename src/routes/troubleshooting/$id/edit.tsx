@@ -49,9 +49,21 @@ function EditTroubleshootingPage() {
             params: { id: record.id },
           })
         },
-        onError: (err) => {
-          console.error(err)
-          error('Failed to update record. Please check your data.')
+        onError: (err: any) => {
+          console.error('Update record error:', err)
+          let msg = 'Failed to update record.'
+          if (err?.message) {
+            msg = err.message
+          } else if (typeof err === 'string') {
+            msg = err
+          }
+          if (msg.includes('Unauthorized') || msg.includes('session')) {
+            error('Session expired or unauthorized. Please re-enter your PIN to unlock and try saving again.')
+          } else if (msg.includes('payload') || msg.includes('413') || msg.includes('Payload') || msg.includes('limit')) {
+            error('Attached photos total size is too large for the server. Please attach fewer or smaller photos.')
+          } else {
+            error(`Database update issue: ${msg}`)
+          }
         },
       }
     )

@@ -13,8 +13,8 @@ export interface CompressedImageResult {
  */
 export async function compressAndResizeImage(
   file: File,
-  maxDimension = 1400,
-  quality = 0.82
+  maxDimension = 1024,
+  quality = 0.72
 ): Promise<CompressedImageResult> {
   return new Promise((resolve, reject) => {
     // If SVG, preserve directly without loss
@@ -79,7 +79,25 @@ export async function compressAndResizeImage(
         ctx.drawImage(img, 0, 0, width, height)
 
         const mime = file.type === 'image/png' ? 'image/jpeg' : file.type || 'image/jpeg'
-        const compressedDataUrl = canvas.toDataURL(mime, quality)
+        let compressedDataUrl = canvas.toDataURL(mime, quality)
+
+        // Adaptive second-pass compression if output is still > 380,000 chars (~285KB)
+        if (compressedDataUrl.length > 380_000) {
+          const secondMaxDim = Math.min(width, 800)
+          const secondHeight = Math.round((height * secondMaxDim) / width)
+          const secondCanvas = document.createElement('canvas')
+          secondCanvas.width = secondMaxDim
+          secondCanvas.height = secondHeight
+          const secondCtx = secondCanvas.getContext('2d')
+          if (secondCtx) {
+            secondCtx.imageSmoothingEnabled = true
+            secondCtx.imageSmoothingQuality = 'high'
+            secondCtx.drawImage(img, 0, 0, secondMaxDim, secondHeight)
+            compressedDataUrl = secondCanvas.toDataURL('image/jpeg', 0.62)
+            width = secondMaxDim
+            height = secondHeight
+          }
+        }
 
         // Calculate approximate size in bytes from base64
         const stringLength = compressedDataUrl.length - 'data:image/jpeg;base64,'.length
@@ -89,7 +107,7 @@ export async function compressAndResizeImage(
           url: compressedDataUrl,
           fileName: file.name,
           fileSize: sizeInBytes,
-          mimeType: mime,
+          mimeType: 'image/jpeg',
           width,
           height,
         })
